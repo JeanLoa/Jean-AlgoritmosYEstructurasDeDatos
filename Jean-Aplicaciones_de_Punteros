@@ -1,0 +1,168 @@
+Te daré ejemplos para cada caso, para mejor entendimiento y claridad:
+1. Aquí no podemos usar el indexado todavía para capturar por valor, ya que su tamaño no está definido, aunque podemos cambiar los valores después de asignar a una memoria apuntada referenciada.
+1.1.
+int main() {
+
+	int* p;
+
+	int data = 10;
+
+	p = &data; // Capturamos por referencia cuando obtenemos su dirección.
+    cout << *p; // Aquí desreferenciamos con * y manipulamos para leer o escribir, debido a que data es un elemento individual. 
+
+	return 0;
+}
+
+1.2.
+int main() {
+
+
+    int n1 = 10, n2 = 10; 
+	int** p;
+
+	int** data = new int* [n1];
+	for (int i = 0; i < n1; ++i) {
+		data[i] = new int[n2];
+	}
+
+	p = data; // Aquí referenciamos sin prefijo de dirección, debido a que p y data son conjuntos.
+
+	return 0;
+}
+
+2. Podemos usar el indexado para inicializar nuestro arreglo definido en new <T> '*s' [n]. Sin embargo, también podemos usarlo como puntero, si las dimensiones y tamaño de estas son mayores al arreglo a proyectar dentro de este.
+
+2.1.
+
+int main() {
+
+	int* p = new int[1];
+	int data = 10;
+
+	p[0] = data; // Captura por valor, ya que está indexando dentro de la matriz dinámica p[0].
+
+	p = &data; // Aqui referenciamos con el prefijo, debido a que se toma el puntero de p, y apunta a un elemento data.
+	cout << *p; // Desreferenciamos con *
+
+	return 0;
+}
+
+2.2.
+int main() {
+
+	int* p = new int[4];
+	int data[] = { 10, 2, 4, 6, 5 };
+
+	p[0] = data[0]; // Captura por valor, ya que está indexando dentro de la matriz dinámica p[0] pero como elemento.
+
+	p = data; // Captura por referencia, ya que se asignan entre conjuntos, aunque solo asigna hasta data[3] por la falta de tamaño en p..
+
+	return 0;
+}
+3.
+3.1.
+int main() {
+	const int n1 = 5,
+	int n2 = 5;
+
+	int* p[n1];
+	for (int i = 0; i < n1; ++i) {
+		p[i] = new int[n2];
+	}
+
+	int data1 = 10;
+	
+	*p[0] = data1; // Captura por referencia con prefijo, ya que el dato sujeto es un elemento individual.
+	// p[0] = {10, null, null, null, null};
+
+	int data2[] = { 1,2,3,4 };
+
+	p[0] = data2; // Captura por referencia sin el prefijo, debido a que se toma conjuntamente al sujeto.
+	// p[0] = {1, 2, 3, 4, null};
+
+	int data3[] = { 1,2,4,5,6,7 };
+	p[0] = data3; // Sale de los límites, por lo tanto, solo llega a llenar los primeros que llenen la matriz dinámica.
+
+	for (int i = 0; i < n2; ++i) {
+		cout << p[0][i] << " "; // 1 2 4 5 6 - el 7 se evita porque ya no entra
+	}
+	return 0;
+}
+
+3.2.
+#include <iostream>
+
+using namespace std;
+
+int main() {
+	const int n1 = 5, n2 = 5;
+	int n3 = 5, n4 = 5;
+
+	int** p[n1][n2];
+	for (int i = 0; i < n1; ++i) {
+		for (int j = 0; j < n2; ++j) {
+			p[i][j] = new int* [n3];
+			for (int k = 0; k < n3; ++k) {
+				p[i][j][k] = new int[n4];
+			}
+		}
+	}
+
+	int data1 = 10;
+	
+	p[0][0][0][0] = data1; // Captura por valor - elemento a elemento.
+	*p[0][0][0] = data1; // Captura por referencia - previo nivel apunta a data[0][0][0]->[0 : 4], su arreglo de bajo nivel de tamaño 5 quedaría { 10, null, null, null, null } porque concatena.
+	
+	system("pause>0");
+	int** data2 = new int* [n1];
+	for (int i = 0; i < n1; ++i) {
+		data2[i] = new int [n2];
+	}
+
+	for (int i = 0; i < n1; ++i) {
+		for (int j = 0; j < n2; ++j) {
+			for (int k = 0; k < n3; ++k) {
+				for (int l = 0; l < n4; ++l) {
+					p[i][j][k][l] = data2[i][j]; // Captura por valor (elemento a elemento), conjuntos o arreglos no se asignan con otros arreglos, no se relacionan.
+				}
+			}
+		}
+	}
+
+	for (int i = 0; i < n1; ++i) {
+		for (int j = 0; j < n2; ++j) {
+			p[i][j] = data2; // Captura por referencia (conjunto a conjunto), conjuntos o arreglos se asignan con otros arreglos, se relacionan.
+		}
+	}
+
+	// Hacer:
+	// int*** data3;
+	// p[i] = data3; saldrá error porque tocamos memoria estática.
+
+	return 0;
+}
+Caso adicional:
+int main() {
+	// Asignación mixta arreglo estático - dinámico
+	const int n1 = 10, n2 = 10;
+	int n3 = 10, n4 = 10;
+	int** p[10][10];
+	for (int i = 0; i < n1; ++i) {
+		for (int j = 0; j < n2; ++j) {
+			p[i][j] = new int* [n3];
+			for (int k = 0; k < n3; ++k) {
+				p[i][j][k] = new int [n4];
+			}
+		}
+	}
+
+	int** data = new int*[n1 - 1]{0};
+	for (int i = 0; i < n1; ++i) {
+		data[i] = new int[n2 - 1] {0};
+	}
+
+	p[1][2] = data; // Entramos a punto 1, 2 estático, luego se abren los puntos, pudiendo concatenar 
+
+	return 0;
+}
+Podemos concatenar la parte dinámica, cuando queremos concatenar tocando la parte estática, no sale error, porque el tamaño en esa parte es constante.
