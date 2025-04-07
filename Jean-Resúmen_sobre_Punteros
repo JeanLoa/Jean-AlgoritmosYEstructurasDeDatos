@@ -1,0 +1,43 @@
+Un resúmen compacto sobre los punteros:
+Un puntero esta hecho para apuntar arreglo de datos.
+Cuando accedemos al puntero, contiene una dirección que contiene ese arreglo subordinado.
+Si subimos de nivel, punteros de punteros, se crean similares estructuras a árboles, expandiendo exponencialmente la cantidad de elementos. Y cada puntero tiene una dirección de memoria respecto a sus arreglos.
+
+Cuando tocamos el primer nivel, no hay direcciones de memoria, son los datos bases, pueden accederse por el primer puntero usando *puntero[i], devolviendo el arreglo. Por lo tanto, no hay dirección para referenciar, por ello se copian.
+
+Por ello, las direcciones de memoria se pueden referenciar, siempre y cuando estén en la jerarquía correcta de memorias.
+
+Un ejemplo:
+int ** p; No puede referenciar a un puntero int *** p3; pero si puede para int** p2; usando la jerarquía adecuada p = p2; y para int * p1; p[0] = p1;
+
+Pero si queremos establecer una estructura puramente referenciada, podemos usar nuestro puntero base en int * p = new int[1], y expandir a arreglos unidimensionales recién en int ** p = new int*[n].
+
+Podemos referenciar elementos con & usando en bases, ejemplo:
+En int** p = new int*[3], int a = 1;
+Para asignarlo referenciadamente usamos en la jerarquía adecuada de punteros.
+p[0] = &a;
+Si a es arreglo unidimensional (puntero simple):
+p = &a;
+Aunque esto crea un comportamiento indefinido, ya que no podemos avanzar en las posiciones en cada dimensión, y solo podemos rellenar 1. Por ello, usar & nos permite trabajar unicamente de manera individual por dimensión.
+Si tenemos p[][] en forma de puntero:
+p apunta a arreglos unidimensionales, en forma de arreglo.
+p[i] apunta a escalares, en forma de arreglo.
+p[i][j] son los escalares mismos.
+Solo metemos una referencia ya que un nivel mayor del puntero invoca a su puntero subordinado siguiente, con el &de un específico elemento, insertando solo un elemento para el puntero mayor.
+Si queremos replantear toda la matriz padre, solo tenemos que asignarlo a un puntero de igual dimensiones, que contiene todas las & de cada elemento hijo. Por lo tanto, podríamos hacer explícita el uso de & si lo concatenamos en la asignación, ejemplo:
+p[i] = {&p[i][0], &p[i][1], &p[i][2], &p[i][3], &p[i][4]}
+Que sería lo mismo, que p[i] = q[i] donde q[i] es el padre de los elementos anteriores. solo que en este caso, p[i] se basa en la dirección de q[i], mientras que si lo hacemos con la forma de arriba, p[i] busca una dirección de memoria disponible para almacenar esas 3 direcciones.
+
+Cuando usamos * desreferenciamos, únicamente válido en punteros de nivel 1 y mayor, menos para los elementos base, ya que no son valores en dirección de memoria.
+int* p = new int[3] {1, 2, 3};
+cout << *p[0]; // Cuando llegamos a la base, los operadores de desreferenciador ya no son necesarios
+Esto me da error porque ese valor, no es una dirección de memoria, es el valor mismo, por lo que desreferenciarlo no es compatible ni lógico.
+
+Corrección: cout << p[0] " | escalar = 1";
+
+Esto sirve para ver los valores en cascada de los punteros.
+
+Para imprimir los valores apuntados, podemos iterar para ver todos los elementos:
+int** p = new int*[n]; **puntero[i] // vemos los valores totales desde ese nivel especificado en cascada hacia el punto base, señalando los desreferenciadores necesarios para llegar a la base escalar.
+Esto también es válido:
+*puntero[i][j], aquí vemos todos los datos del arreglo bidimensional.
